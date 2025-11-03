@@ -1,146 +1,193 @@
+#!/usr/bin/env python3
+"""Attack Surface Analysis Module"""
+
 class AttackSurfaceAnalyzer:
-    '''Analyze and map attack surface'''
+    """Analyze attack surface of scanned system"""
     
     def __init__(self):
-        '''Initialize analyzer'''
-        self.risk_matrix = {
-            ('NETWORK', 'NONE'): 'CRITICAL',  # Remote + No auth
-            ('NETWORK', 'LOW'): 'HIGH',
-            ('ADJACENT', 'NONE'): 'HIGH',
-            ('LOCAL', 'NONE'): 'MEDIUM',
-            ('LOCAL', 'LOW'): 'MEDIUM',
-            ('PHYSICAL', 'NONE'): 'LOW',
+        self.surface_weights = {
+            'remote': 10,
+            'local': 5,
+            'adjacent': 7
+        }
+        
+        self.port_risk = {
+            21: ('FTP', 8),
+            22: ('SSH', 5),
+            23: ('Telnet', 10),
+            25: ('SMTP', 6),
+            80: ('HTTP', 4),
+            443: ('HTTPS', 3),
+            445: ('SMB', 10),
+            3306: ('MySQL', 7),
+            3389: ('RDP', 9),
+            5432: ('PostgreSQL', 7),
+            8080: ('HTTP-Alt', 5)
         }
     
     def analyze_surface(self, vulnerabilities):
-        '''Analyze attack surface'''
+        """Analyze attack surface from vulnerabilities"""
         
-        surface = {
-            'entry_points': [],
-            'exposed_services': set(),
-            'high_risk_vectors': [],
-            'summary': {}
+        # Robust handling of empty/None input
+        if not vulnerabilities:
+            return {
+                'total_score': 0,
+                'entry_points': [],
+                'risk_level': 'LOW',
+                'summary': 'No vulnerabilities detected'
+            }
+        
+        # Ensure we have a list
+        if not isinstance(vulnerabilities, list):
+            vulnerabilities = [vulnerabilities]
+        
+        entry_points = []
+        total_score = 0
+        
+        # Group by host and port
+        by_host = {}
+        for vuln in vulnerabilities:
+            # Robust field extraction with defaults
+            host = self._safe_get(vuln, 'host', 'unknown')
+            port = self._safe_get(vuln, 'port', 0)
+            
+            # Convert port to int if it's a string
+            if isinstance(port, str):
+                try:
+                    port = int(port)
+                except (ValueError, TypeError):
+                    port = 0
+            
+            key = f"{host}:{port}"
+            if key not in by_host:
+                by_host[key] = []
+            by_host[key].append(vuln)
+        
+        # Analyze each entry point
+        for key, vulns in by_host.items():
+            try:
+                host, port_str = key.split(':')
+                port = int(port_str) if port_str.isdigit() else 0
+            except (ValueError, AttributeError):
+                host = 'unknown'
+                port = 0
+            
+            # Calculate entry point score
+            service_name = self._safe_get(vulns[0], 'service', 'unknown')
+            base_risk = self.port_risk.get(port, (service_name, 5))[1]
+            
+            # Add vulnerability scores
+            vuln_score = sum(self._vuln_score(v) for v in vulns)
+            
+            entry_score = base_risk + vuln_score
+            total_score += entry_score
+            
+            entry_points.append({
+                'host': host,
+                'port': port,
+                'service': service_name,
+                'vulnerabilities': len(vulns),
+                'score': entry_score,
+                'risk': self._score_to_risk(entry_score)
+            })
+        
+        # Sort by score
+        entry_points.sort(key=lambda x: x['score'], reverse=True)
+        
+        return {
+            'total_score': total_score,
+            'entry_points': entry_points[:10],  # Top 10
+            'risk_level': self._score_to_risk(total_score),
+            'summary': f"{len(entry_points)} entry points, total risk: {total_score}"
+        }
+    
+    def _safe_get(self, dictionary, key, default):
+        """Safely get value from dictionary"""
+        try:
+            return dictionary.get(key, default)
+        except (AttributeError, TypeError):
+            return default
+    
+    def _vuln_score(self, vuln):
+        """Calculate vulnerability contribution to score"""
+        severity = self._safe_get(vuln, 'severity', 'LOW')
+        
+        # Handle different severity formats
+        if isinstance(severity, str):
+            severity = severity.upper()
+        
+        scores = {
+            'CRITICAL': 10,
+            'HIGH': 7,
+            'MEDIUM': 4,
+            'LOW': 2,
+            'INFO': 1,
+            'NONE': 0
         }
         
-        # Analyze each vulnerability
-        for vuln in vulnerabilities:
-            av = vuln.get('attack_vector', 'LOCAL')
-            pr = vuln.get('privileges_required', 'LOW')
-            
-            # Entry point analysis
-            if av == 'NETWORK' and pr == 'NONE':
-                surface['entry_points'].append({
-                    'cve': vuln.get('cve_id'),
-                    'type': 'Remote Unauthenticated',
-                    'risk': 'CRITICAL',
-                    'service': vuln.get('service', 'Unknown')
-                })
-            
-            # Track exposed services
-            if av in ['NETWORK', 'ADJACENT']:
-                service = vuln.get('service', 'Unknown')
-                surface['exposed_services'].add(service)
+        base = scores.get(severity, 2)
         
-        # Generate summary
-        surface['summary'] = {
-            'total_entry_points': len(surface['entry_points']),
-            'exposed_services_count': len(surface['exposed_services']),
-            'network_accessible': sum(1 for v in vulnerabilities 
-                                     if v.get('attack_vector') == 'NETWORK'),
-            'remote_code_execution': self._count_rce(vulnerabilities)
-        }
+        # Bonus if exploit available
+        exploit_available = self._safe_get(vuln, 'exploit_available', False)
+        if exploit_available:
+            base *= 1.5
         
-        return surface
+        return base
     
-    def _count_rce(self, vulnerabilities):
-        '''Count potential RCE vulnerabilities'''
-        rce_count = 0
-        
-        for vuln in vulnerabilities:
-            # Heuristic: High CVSS + Network + Code execution indicators
-            cvss = vuln.get('cvss_score', 0)
-            av = vuln.get('attack_vector', '')
-            
-            if cvss >= 8.0 and av == 'NETWORK':
-                impacts = [
-                    vuln.get('confidentiality_impact', ''),
-                    vuln.get('integrity_impact', ''),
-                    vuln.get('availability_impact', '')
-                ]
-                
-                if impacts.count('HIGH') >= 2:
-                    rce_count += 1
-        
-        return rce_count
+    def _score_to_risk(self, score):
+        """Convert score to risk level"""
+        if score >= 50:
+            return 'CRITICAL'
+        elif score >= 30:
+            return 'HIGH'
+        elif score >= 15:
+            return 'MEDIUM'
+        else:
+            return 'LOW'
     
-    def generate_report(self, surface):
-        '''Generate attack surface report'''
+    def generate_report(self, analysis):
+        """Generate human-readable report"""
         
-        report = f'''
-╔══════════════════════════════════════════════════════════╗
-║           ATTACK SURFACE ANALYSIS REPORT                 ║
-╚══════════════════════════════════════════════════════════╝
-
-📊 SUMMARY:
-  Total Entry Points: {surface['summary']['total_entry_points']}
-  Exposed Services: {surface['summary']['exposed_services_count']}
-  Network Accessible: {surface['summary']['network_accessible']}
-  Potential RCE: {surface['summary']['remote_code_execution']}
-
-🚪 HIGH-RISK ENTRY POINTS:
-'''
+        report = []
+        report.append("=" * 60)
+        report.append("ATTACK SURFACE ANALYSIS")
+        report.append("=" * 60)
+        report.append(f"\nTotal Risk Score: {analysis.get('total_score', 0)}")
+        report.append(f"Risk Level: {analysis.get('risk_level', 'UNKNOWN')}")
+        report.append(f"Summary: {analysis.get('summary', 'N/A')}\n")
         
-        for ep in surface['entry_points'][:10]:
-            report += f'''
-  [{ep['risk']}] {ep['cve']}
-    Type: {ep['type']}
-    Service: {ep['service']}
-'''
+        entry_points = analysis.get('entry_points', [])
         
-        report += f'''
-🔍 EXPOSED SERVICES:
-'''
-        for service in sorted(surface['exposed_services']):
-            report += f"  • {service}\n"
+        if entry_points:
+            report.append("TOP ENTRY POINTS:")
+            report.append("-" * 60)
+            
+            for i, ep in enumerate(entry_points, 1):
+                report.append(f"\n{i}. {ep.get('host', 'N/A')}:{ep.get('port', 'N/A')} ({ep.get('service', 'N/A')})")
+                report.append(f"   Vulnerabilities: {ep.get('vulnerabilities', 0)}")
+                report.append(f"   Score: {ep.get('score', 0)} - {ep.get('risk', 'N/A')}")
+        else:
+            report.append("\nNo entry points identified.")
         
-        report += '''
-💡 RECOMMENDATIONS:
-  1. Minimize network-exposed services
-  2. Implement strong authentication
-  3. Network segmentation
-  4. Regular patching schedule
-  5. Intrusion detection systems
-'''
-        
-        return report
+        return "\n".join(report)
 
 
 if __name__ == '__main__':
     # Test
-    print("ATTACK SURFACE ANALYZER TEST")
+    analyzer = AttackSurfaceAnalyzer()
     
     test_vulns = [
-        {
-            'cve_id': 'CVE-TEST-001',
-            'cvss_score': 9.8,
-            'attack_vector': 'NETWORK',
-            'privileges_required': 'NONE',
-            'confidentiality_impact': 'HIGH',
-            'integrity_impact': 'HIGH',
-            'availability_impact': 'HIGH',
-            'service': 'HTTP'
-        },
-        {
-            'cve_id': 'CVE-TEST-002',
-            'cvss_score': 7.5,
-            'attack_vector': 'NETWORK',
-            'privileges_required': 'LOW',
-            'service': 'SSH'
-        }
+        {'host': '192.168.1.1', 'port': 445, 'service': 'SMB', 
+         'severity': 'CRITICAL', 'exploit_available': True},
+        {'host': '192.168.1.1', 'port': 22, 'service': 'SSH', 
+         'severity': 'MEDIUM', 'exploit_available': False}
     ]
     
-    analyzer = AttackSurfaceAnalyzer()
-    surface = analyzer.analyze_surface(test_vulns)
-    report = analyzer.generate_report(surface)
+    result = analyzer.analyze_surface(test_vulns)
+    print(analyzer.generate_report(result))
     
-    print(report)
+    # Test with empty
+    print("\n" + "="*60)
+    print("Testing with empty list:")
+    result2 = analyzer.analyze_surface([])
+    print(analyzer.generate_report(result2))
