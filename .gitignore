@@ -33,3 +33,4 @@ git-auto.sh
 # models/*.pkl
 # data/*.json 
 .env
+reports/*.html
