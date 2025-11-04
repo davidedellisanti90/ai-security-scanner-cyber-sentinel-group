@@ -37,9 +37,11 @@ Membri del team:
 
 -----------------------------------------------------------------
 
-AI Security Scanner è un progetto open-source che combina la potenza dell’intelligenza artificiale con strumenti di network scanning come Nmap, per rendere le analisi di sicurezza più intelligenti, leggibili e automatizzate.
+# 🛡️ AI Security Scanner
 
-🚀 Obiettivi del progetto
+**AI Security Scanner** è uno strumento di analisi di rete potenziato da intelligenza artificiale. Combina **Nmap** con moduli di **machine learning** per stimare la gravità delle vulnerabilità, calcolare punteggi di rischio e generare report interattivi con grafici e dashboard HTML.
+
+# 🚀 Obiettivi del progetto
 
 L’obiettivo è creare un sistema capace di:
 
@@ -50,7 +52,18 @@ Fornire report chiari e sintetici, supportati da modelli AI.
 
 Automatizzare test e validazioni per garantire affidabilità e scalabilità.
 
+## 🚀 Caratteristiche principali
+
+- Wrapper Nmap con salvataggio XML e gestione errori/timeout
+- Parser XML → JSON strutturato con riepilogo automatico
+- Modulo ML (Random Forest) per `predicted_severity` e `confidence`
+- Sistema di **risk scoring** 0–10 e priorità operative P1–P4  
+  (P1: 24h, P2: 1w, P3: 1m, P4: routine)
+- Visualizzazione con **Matplotlib/Seaborn** e dashboard HTML
+- Test automatizzati, supporto CI e runner per uso schedulato
+
 🧩 Struttura del progetto\
+
 
 ai-security-scanner/
 ├── src/
@@ -70,6 +83,7 @@ ai-security-scanner/
 ├── .github/workflows/           # CI/CD configs
 ├── requirements.txt             # Dependencies
 └── README.md                    # This file
+
 
 ⚙️ Setup e dipendenze
 
