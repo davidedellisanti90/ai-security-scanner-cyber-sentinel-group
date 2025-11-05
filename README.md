@@ -292,10 +292,11 @@ Integrazione di modelli AI per l’analisi dei risultati.
 python3 ai-security-scanner-cyber-sentinel-group/examples/complete_scan.py 
 
 Enter target (IP or hostname): scanme.nmpap.org
+```
 
 ![Immagine 2025-11-05 075120](https://github.com/user-attachments/assets/e92e3e50-7974-4c22-8414-754f4c4d688b)
 
-```
+
 
 
 🤝 Contribuire
