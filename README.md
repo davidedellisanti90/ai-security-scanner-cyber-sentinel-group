@@ -82,6 +82,7 @@ L’intera pipeline di elaborazione segue questi passaggi:
 
 ## Struttura del progetto
 
+```
 ai-security-scanner/
 ├── examples/
 │ └── generate_report.py (entry point del reporting)
@@ -100,7 +101,7 @@ ai-security-scanner/
 ├── README.md
 ├── LICENSE
 └── ...
-
+```
 
 ## 📦 Installazione su Ubuntu
 
