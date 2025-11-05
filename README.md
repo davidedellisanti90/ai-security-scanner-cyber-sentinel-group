@@ -1,5 +1,3 @@
-TITOLO: AI Security Scanner
-
 # AI Security Scanner
 
 ![CI/CD](https://github.com/davidedellisanti90/ai-security-scanner-cyber-sentinel-group/workflows/CI%2FCD%20Pipeline/badge.svg)
@@ -37,66 +35,221 @@ Membri del team:
 
 -----------------------------------------------------------------
 
-AI Security Scanner è un progetto open-source che combina la potenza dell’intelligenza artificiale con strumenti di network scanning come Nmap, per rendere le analisi di sicurezza più intelligenti, leggibili e automatizzate.
+# 🛡️ AI Security Scanner
 
-🚀 Obiettivi del progetto
+**AI Security Scanner** è uno strumento open-source per l’analisi automatizzata delle vulnerabilità in ambienti **DevSecOps**, **pipeline CI/CD** e infrastrutture applicative.  
+Integra analisi basata su machine learning, normalizzazione dei punteggi di rischio, arricchimento NVD (CVSS) e reportistica interattiva.
+```
+✅ Ideale per penetration tester, analisti SOC, DevOps e ingegneri della sicurezza  
+✅ Analizza e interpreta output XML di Nmap  
+✅ Applica punteggi di rischio ML-driven normalizzati  
+✅ Produce dashboard HTML interattive e grafici di rischio  
+```
+---
 
-L’obiettivo è creare un sistema capace di:
+## 🔍 Funzionalità chiave
+```
+- Analisi avanzata delle vulnerabilità da file Nmap XML
+- Arricchimento opzionale tramite API NVD (CVSS v3/v3.1)
+- Normalizzazione del **risk_score** per coerenza dei punteggi
+- Calcolo automatico delle **priorità di triage**
+- Visualizzazioni grafiche:
+  - Distribuzione della severità
+  - Distribuzione delle priorità
+  - Istogramma dei punteggi di rischio
+  - Top vulnerabilità (deduplicate per CVE)
+- Dashboard HTML responsive e stampabile
+- Esportazione JSON completa per integrazione con altri sistemi
+```
+---
 
-Eseguire scansioni automatiche su reti e host.
-Interpretare i risultati delle scansioni attraverso un parser intelligente.
+## 🧠 Come funziona
+```
+L’intera pipeline di elaborazione segue questi passaggi:
 
-Fornire report chiari e sintetici, supportati da modelli AI.
+1. Estrazione delle vulnerabilità dal report Nmap XML  
+2. (Opzionale) Recupero dei dati CVSS reali via API NVD  
+3. Il modello ML genera segnali di rischio (risk signals)  
+4. Normalizzazione dei punteggi in base a:
+   - Punteggio ML
+   - CVSS baseScore
+   - Mappatura della severità
+   - Mappatura della priorità
+5. Generazione della **dashboard HTML interattiva**
+6. Creazione di grafici e metadati JSON per audit o integrazione
+```
+## Struttura del progetto
 
-Automatizzare test e validazioni per garantire affidabilità e scalabilità.
-
-🧩 Struttura del progetto\
-
+```
 ai-security-scanner/
-├── src/
-│   ├── scanner/
-│   │   └── nmap_wrapper.py      # Nmap interface
-│   ├── parser/
-│   │   ├── xml_parser.py        # XML parsing
-│   │   └── json_converter.py    # JSON conversion
-│   └── utils/                    # Utilities
-├── tests/
-│   ├── test_scanner.py          # Scanner tests
-│   ├── test_parser.py           # Parser tests
-│   └── test_converter.py        # Converter tests
 ├── examples/
-│   └── complete_scan.py         # Full pipeline example
-├── scan_results/                # Output directory
-├── .github/workflows/           # CI/CD configs
-├── requirements.txt             # Dependencies
-└── README.md                    # This file
+│ └── generate_report.py (entry point del reporting)
+├── reports/ (output generati)
+├── src/
+│ ├── parser/
+│ │ └── xml_parser.py (ingestione Nmap XML)
+│ ├── security/
+│ │ ├── attack_surface.py
+│ │ ├── threat_model.py
+│ │ └── recommendations.py
+│ └── visualization/
+│ ├── plotter.py (grafici Matplotlib)
+│ └── dashboard.py (rendering HTML)
+├── requirements.txt
+├── README.md
+├── LICENSE
+└── ...
+```
 
-⚙️ Setup e dipendenze
-
+## 📦 Installazione su Ubuntu
+```
 Il progetto utilizza Python 3.x e strumenti di sicurezza come Nmap.
-Assicurati di avere entrambi installati.
+Assicurati di avere entrambi installati con i comandi 
 
-Installazione su Ubuntu
+python3 --version nmap --version
+
+nel caso installarli con 
+
 sudo apt update
 sudo apt install nmap python3 python3-pip -y
-
-Clona il progetto
+```
+### Clona il progetto
+```
 git clone https://github.com/davidedellisanti90/ai-security-scanner-cyber-sentinel-group
 cd ai-security-scanner
-
-🧠 Come funziona
-
+```
+### installa ambiente virtuale 
+```
+python3 -m venv venv
+```
+### attiva ambiente virtuale
+```
+source venv/bin/activate
+```
+### installa le dipendenze
+```
+pip install -r requirements.txt
+```
+# 🧠 Come funziona
+```
 Lo script scanner.py avvia la scansione della rete.
 
 I risultati vengono interpretati dal modulo parser/.
 
 I dati elaborati vengono forniti in formato leggibile o pronti per essere analizzati da un modello AI.
+```
+### Esempio d’uso:
+```
 
-Esempio d’uso:
+python3 ai-security-scanner-cyber-sentinel-group/examples/complete_scan.py 
+
+Enter target (IP or hostname): < inserisci target >
+
+```
+---
+
+### Genera un report completo partendo da un file XML Nmap:
+```
+python examples/generate_report.py scan_full.xml --nvd
 
 
-python3 ai-security-scanner-cyber-sentinel-group/examples/complete_scan.py --target 192.168.1.0/24
+Apri la dashboard HTML generata:
 
+xdg-open reports/dashboard_*.html
+
+```
+## 📤 Esempio di output (CLI)
+```
+[STEP 1/5] Parsing e Analisi ML...
+✓ 51 vulnerabilità trovate
+✓ Arricchimento CVSS completato (NVD)
+
+[STEP 2/5] Security Analysis...
+
+Attack Surface Score: 293 (CRITICO)
+
+Entry Points: 4
+
+[STEP 3/5] Visualizzazioni...
+✓ severity_dist.png
+✓ priority_dist.png
+✓ risk_dist.png
+✓ top_vulns.png
+
+[STEP 4/5] Dashboard generata
+
+[STEP 5/5] Report JSON salvato: scan_full_complete_report.json
+
+```
+---
+
+## ⚙️ Configurazione
+```
+Abilitazione/disabilitazione delle analisi:
+
+nvd:
+enable: true
+
+analysis:
+ml: true
+risk_normalization: true
+
+```
+---
+
+## 🧮 Normalizzazione del punteggio di rischio
+```
+La pipeline prende il **massimo** tra i punteggi disponibili per ogni vulnerabilità:
+
+risk_normalized = max(
+ml_risk_score,
+cvss_score,
+severity_mapping,
+priority_mapping
+)
+
+
+| Punteggio di rischio | Priorità  | Azione consigliata           |
+|----------------------|-----------|------------------------------|
+| ≥ 9.0                | P1        | Mitigazione immediata        |
+| ≥ 7.0                | P2        | Alta priorità                |
+| ≥ 4.0                | P3        | Correzione pianificata       |
+| < 4.0                | P4        | Monitoraggio periodico       |
+
+```
+---
+
+## 📊 Grafici generati
+```
+- Distribuzione delle severità
+- Distribuzione delle priorità
+- Istogramma dei punteggi di rischio
+- Top vulnerabilità (deduplicate per CVE)
+
+Output generato:
+
+reports/plots/severity_dist.png
+reports/plots/priority_dist.png
+reports/plots/risk_dist.png
+reports/plots/top_vulns.png
+
+```
+---
+
+## 🖥️ Dashboard
+```
+La dashboard interattiva fornisce:
+
+- KPI principali (vulnerabilità, punteggi medi, criticità)
+- Grafici di distribuzione
+- Tabelle con breakdown per priorità/severità
+- Top 10 vulnerabilità a maggior rischio
+- Raccomandazioni di mitigazione
+
+Visualizzazione:
+
+xdg-open reports/dashboard_*.html
+```
 
 📘 Documentazione
 
@@ -132,21 +285,38 @@ Le integrazioni AI previste.
 Integrazione di modelli AI per l’analisi dei risultati.
 
 
-Le prossime fasi di sviluppo.
+# Esempio di scansione su target scanme.nmpap.org
+```
+python3 ai-security-scanner-cyber-sentinel-group/examples/complete_scan.py 
 
-🔮 Prossimi sviluppi
+Enter target (IP or hostname): scanme.nmpap.org
+```
 
-Generazione automatica di report.
+![Immagine 2025-11-05 075120](https://github.com/user-attachments/assets/e92e3e50-7974-4c22-8414-754f4c4d688b)
 
-Dashboard web per visualizzare le scansioni in tempo reale.
+```
+python examples/generate_report.py scan_results/scanme_nmap_org_scan.xml -- nvd
+```
 
-Automazione dei test di sicurezza.
+![Immagine 2025-11-05 075358](https://github.com/user-attachments/assets/40f94028-9f58-4236-8e5f-7360ac590425)
+![Immagine 2025-11-05 075826](https://github.com/user-attachments/assets/8c30203b-6009-418a-a7c4-fa6a16e3b912)
 
-🤝 Contribuire
+```
+1. Open dashboard: xdg-open reports/dashboard_20251105_075313.html
+```
+![Immagine 2025-11-05 080229](https://github.com/user-attachments/assets/016c95fd-3b94-478f-865b-91511893de09)
+
+```
+dashboard
+```
+![Immagine 2025-11-05 080257](https://github.com/user-attachments/assets/d44d5c94-ad69-4801-bcf4-b7fb593b748f)
+
+
+# 🤝 Contribuire
 
 Le pull request sono benvenute!
 Per idee, suggerimenti o collaborazioni, apri una issue o contatta il team.
 
-🧾 Licenza
+# 🧾 Licenza
 
 Distribuito sotto licenza MIT — libero di esplorare, modificare e migliorare.
