@@ -80,65 +80,26 @@ L’intera pipeline di elaborazione segue questi passaggi:
 5. Generazione della **dashboard HTML interattiva**
 6. Creazione di grafici e metadati JSON per audit o integrazione
 
-
-🧩 Struttura del progetto\
-
+## Struttura del progetto
 
 ai-security-scanner/
+├── examples/
+│ └── generate_report.py (entry point del reporting)
+├── reports/ (output generati)
+├── src/
+│ ├── parser/
+│ │ └── xml_parser.py (ingestione Nmap XML)
+│ ├── security/
+│ │ ├── attack_surface.py
+│ │ ├── threat_model.py
+│ │ └── recommendations.py
+│ └── visualization/
+│ ├── plotter.py (grafici Matplotlib)
+│ └── dashboard.py (rendering HTML)
+├── requirements.txt
 ├── README.md
 ├── LICENSE
-├── requirements.txt
-├── .gitignore
-├── docs/
-├── examples/
-│   ├── basic_scan.py
-│   ├── complete_scan.py
-│   ├── generate_report.py
-│   └── ml_enhanced_scan.py
-├── src/
-│   ├── exploits/
-│   │   ├── __init__.py
-│   │   └── exploit_db.py
-│   ├── ml/
-│   │   ├── analyzer.py
-│   │   ├── cve_collector.py
-│   │   ├── nvd_data_collector.py
-│   │   ├── predict.py
-│   │   └── train_model.py
-│   ├── nvd/
-│   │   ├── __init__.py
-│   │   └── nvd_client.py
-│   ├── parser/
-│   │   ├── __init__.py
-│   │   ├── json_converter.py
-│   │   └── xml_parser.py
-│   ├── scanner/
-│   │   ├── __init__.py
-│   │   └── nmap_wrapper.py
-│   ├── security/
-│   │   ├── __init__.py
-│   │   ├── attack_surface.py
-│   │   ├── recommendations.py
-│   │   └── threat_model.py
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   └── risk_scorer.py
-│   └── visualization/
-│       ├── __init__.py
-│       ├── dashboard.py
-│       └── plotter.py
-├── tests/
-│   ├── __init__.py
-│   ├── test_converter.py
-│   ├── test_demo.py
-│   ├── test_integration.py
-│   ├── test_ml_model.py
-│   ├── test_parser.py
-│   └── test_scanner.py
-└── data/           # opzionale: solo sample minimi
-    ├── .keep
-    └── README.md
-
+└── ...
 
 
 ## 📦 Installazione su Ubuntu
