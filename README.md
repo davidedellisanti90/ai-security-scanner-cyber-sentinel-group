@@ -41,16 +41,16 @@ Membri del team:
 
 **AI Security Scanner** è uno strumento open-source per l’analisi automatizzata delle vulnerabilità in ambienti **DevSecOps**, **pipeline CI/CD** e infrastrutture applicative.  
 Integra analisi basata su machine learning, normalizzazione dei punteggi di rischio, arricchimento NVD (CVSS) e reportistica interattiva.
-
+```
 ✅ Ideale per penetration tester, analisti SOC, DevOps e ingegneri della sicurezza  
 ✅ Analizza e interpreta output XML di Nmap  
 ✅ Applica punteggi di rischio ML-driven normalizzati  
 ✅ Produce dashboard HTML interattive e grafici di rischio  
-
+```
 ---
 
 ## 🔍 Funzionalità chiave
-
+```
 - Analisi avanzata delle vulnerabilità da file Nmap XML
 - Arricchimento opzionale tramite API NVD (CVSS v3/v3.1)
 - Normalizzazione del **risk_score** per coerenza dei punteggi
@@ -62,11 +62,11 @@ Integra analisi basata su machine learning, normalizzazione dei punteggi di risc
   - Top vulnerabilità (deduplicate per CVE)
 - Dashboard HTML responsive e stampabile
 - Esportazione JSON completa per integrazione con altri sistemi
-
+```
 ---
 
 ## 🧠 Come funziona
-
+```
 L’intera pipeline di elaborazione segue questi passaggi:
 
 1. Estrazione delle vulnerabilità dal report Nmap XML  
@@ -79,7 +79,7 @@ L’intera pipeline di elaborazione segue questi passaggi:
    - Mappatura della priorità
 5. Generazione della **dashboard HTML interattiva**
 6. Creazione di grafici e metadati JSON per audit o integrazione
-
+```
 ## Struttura del progetto
 
 ```
@@ -104,7 +104,7 @@ ai-security-scanner/
 ```
 
 ## 📦 Installazione su Ubuntu
-
+```
 Il progetto utilizza Python 3.x e strumenti di sicurezza come Nmap.
 Assicurati di avere entrambi installati con i comandi 
 
@@ -114,38 +114,44 @@ nel caso installarli con
 
 sudo apt update
 sudo apt install nmap python3 python3-pip -y
-
+```
 ### Clona il progetto
+```
 git clone https://github.com/davidedellisanti90/ai-security-scanner-cyber-sentinel-group
 cd ai-security-scanner
-
+```
 ### installa ambiente virtuale 
+```
 python3 -m venv venv
+```
 ### attiva ambiente virtuale
-source venv/bin/activate 
+```
+source venv/bin/activate
+```
 ### installa le dipendenze
+```
 pip install -r requirements.txt
-
+```
 # 🧠 Come funziona
-
+```
 Lo script scanner.py avvia la scansione della rete.
 
 I risultati vengono interpretati dal modulo parser/.
 
 I dati elaborati vengono forniti in formato leggibile o pronti per essere analizzati da un modello AI.
-
+```
 ### Esempio d’uso:
-
+```
 
 python3 ai-security-scanner-cyber-sentinel-group/examples/complete_scan.py 
 
 Enter target (IP or hostname): < inserisci target >
 
-
+```
 ---
 
 ### Genera un report completo partendo da un file XML Nmap:
-
+```
 python examples/generate_report.py scan_full.xml --nvd
 
 
@@ -153,9 +159,9 @@ Apri la dashboard HTML generata:
 
 xdg-open reports/dashboard_*.html
 
-
+```
 ## 📤 Esempio di output (CLI)
-
+```
 [STEP 1/5] Parsing e Analisi ML...
 ✓ 51 vulnerabilità trovate
 ✓ Arricchimento CVSS completato (NVD)
@@ -176,11 +182,11 @@ Entry Points: 4
 
 [STEP 5/5] Report JSON salvato: scan_full_complete_report.json
 
-
+```
 ---
 
 ## ⚙️ Configurazione
-
+```
 Abilitazione/disabilitazione delle analisi:
 
 nvd:
@@ -190,11 +196,11 @@ analysis:
 ml: true
 risk_normalization: true
 
-
+```
 ---
 
 ## 🧮 Normalizzazione del punteggio di rischio
-
+```
 La pipeline prende il **massimo** tra i punteggi disponibili per ogni vulnerabilità:
 
 risk_normalized = max(
@@ -212,10 +218,11 @@ priority_mapping
 | ≥ 4.0                | P3        | Correzione pianificata       |
 | < 4.0                | P4        | Monitoraggio periodico       |
 
+```
 ---
 
 ## 📊 Grafici generati
-
+```
 - Distribuzione delle severità
 - Distribuzione delle priorità
 - Istogramma dei punteggi di rischio
@@ -228,11 +235,11 @@ reports/plots/priority_dist.png
 reports/plots/risk_dist.png
 reports/plots/top_vulns.png
 
-
+```
 ---
 
 ## 🖥️ Dashboard
-
+```
 La dashboard interattiva fornisce:
 
 - KPI principali (vulnerabilità, punteggi medi, criticità)
@@ -244,6 +251,7 @@ La dashboard interattiva fornisce:
 Visualizzazione:
 
 xdg-open reports/dashboard_*.html
+```
 
 📘 Documentazione
 
