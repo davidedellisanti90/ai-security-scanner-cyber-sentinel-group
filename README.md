@@ -1,5 +1,3 @@
-TITOLO: AI Security Scanner
-
 # AI Security Scanner
 
 ![CI/CD](https://github.com/davidedellisanti90/ai-security-scanner-cyber-sentinel-group/workflows/CI%2FCD%20Pipeline/badge.svg)
