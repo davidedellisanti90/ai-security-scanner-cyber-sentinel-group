@@ -296,14 +296,29 @@ Enter target (IP or hostname): scanme.nmpap.org
 
 ![Immagine 2025-11-05 075120](https://github.com/user-attachments/assets/e92e3e50-7974-4c22-8414-754f4c4d688b)
 
+```
+python examples/generate_report.py scan_results/scanme_nmap_org_scan.xml -- nvd
+```
+
+![Immagine 2025-11-05 075358](https://github.com/user-attachments/assets/40f94028-9f58-4236-8e5f-7360ac590425)
+![Immagine 2025-11-05 075826](https://github.com/user-attachments/assets/8c30203b-6009-418a-a7c4-fa6a16e3b912)
+
+```
+1. Open dashboard: xdg-open reports/dashboard_20251105_075313.html
+```
+![Immagine 2025-11-05 080229](https://github.com/user-attachments/assets/016c95fd-3b94-478f-865b-91511893de09)
+
+```
+dashboard
+```
+![Immagine 2025-11-05 080257](https://github.com/user-attachments/assets/d44d5c94-ad69-4801-bcf4-b7fb593b748f)
 
 
-
-🤝 Contribuire
+# 🤝 Contribuire
 
 Le pull request sono benvenute!
 Per idee, suggerimenti o collaborazioni, apri una issue o contatta il team.
 
-🧾 Licenza
+# 🧾 Licenza
 
 Distribuito sotto licenza MIT — libero di esplorare, modificare e migliorare.
